@@ -28,12 +28,22 @@ public:
 
 	//Text for Main menu.
 	Text mText;
+	Text instructions;
+	//Text for end screen
+	Text endText;
+	Text youDead;
+
 	int gameState;
-	int speed;
+
+
+
+	bool goingRight, goingLeft, goingUp, goingDown;
 
 	bool isColliding;
 
 	bool isCollidingUp;
+	//Player
+	int killCount;
 	//PlayerVectors
 	Vector2f playerCenter;
 	Vector2f mousePosWindow;
@@ -41,6 +51,8 @@ public:
 	Vector2f aimDirNorm;
 	//Bullet 1
 	Bullet b1;
+	
+	
 
 	
 
@@ -56,6 +68,7 @@ private:
 	//Enemy
 	RectangleShape enemy;
 	int spawnCounter = 20;
+	
 	std::vector<RectangleShape> enemies;
 	//bullets
 	std::vector<Bullet> bullets;

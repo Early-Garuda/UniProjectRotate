@@ -8,6 +8,7 @@ CircleShape ball(50);
 //Constructor
 Game::Game(RenderWindow & window, int width, int height)
 {
+
 	//Setting game state
 	gameState = 1;
 	//setting font for project
@@ -21,6 +22,25 @@ Game::Game(RenderWindow & window, int width, int height)
 	mText.setCharacterSize(50);
 	mText.setFillColor(Color::White);
 	mText.setString("Space to play");
+
+	instructions.setFont(mFont);
+	instructions.setPosition(50.0f, 250.0f);
+	instructions.setCharacterSize(50);
+	instructions.setFillColor(Color::White);
+	instructions.setString("W,A,S,D to move.\n\nLeft Click to shoot.");
+	//Text vars for DEAD screen
+	endText.setFont(mFont);
+	endText.setPosition(50.0f, 50.0f);
+	endText.setCharacterSize(50);
+	endText.setFillColor(Color::White);
+	endText.setString("GAME OVER");
+
+	youDead.setFont(mFont);
+	youDead.setPosition(50.0f, 250.0f);
+	youDead.setCharacterSize(50);
+	youDead.setFillColor(Color::White);
+	youDead.setString("You have died press space\n to return to main menu.");
+
 	//box
 	box.setFillColor(Color::Black);
 	box.setPosition(Vector2f(200, 200));
@@ -28,13 +48,14 @@ Game::Game(RenderWindow & window, int width, int height)
 	ball.setFillColor(Color::White);
 	ball.setPosition(Vector2f(300, 200));
 	//
-	speed = 5;
+	
 	//setting frame limit
 	window.setFramerateLimit(60);
 
 	//Player
 	player.setRadius(25.f);
 	player.setFillColor(Color::White);
+	killCount = 0;
 
 	//Bullets
 	bullets.push_back(Bullet(b1));
@@ -98,6 +119,7 @@ void Game::update(Time elapsedTime)
 			gameState = 2;
 		}
 		break;
+
 	case 2://Level 1 checking for input
 		//get player center
 		playerCenter = Vector2f(player.getPosition().x + player.getRadius(), player.getPosition().y + player.getRadius());
@@ -106,65 +128,41 @@ void Game::update(Time elapsedTime)
 		//get aim normals
 		aimDirNorm = aimDir / sqrt(pow(aimDir.x, 2) + pow(aimDir.y, 2));
 
-		//playermovement
-		if (Keyboard::isKeyPressed(Keyboard::A))
-		{
-			player.move(-speed, 0);
-		}
-		if (Keyboard::isKeyPressed(Keyboard::D))
-		{
-			player.move(speed, 0);
-		}
+		//Player
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-			player.move(0.f, -speed);
+			player.move(0.f, -10.0f);
+		}
+		if (Keyboard::isKeyPressed(Keyboard::A))
+		{
+			player.move(-10.f, 0.f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-			player.move(0.f, speed);
+			player.move(0.f, 10.0f);
 		}
-
-
-		//if (ball.getGlobalBounds().intersects(box.getGlobalBounds()))
-		//{
-		//	ball.setPosition(600, 200);
-		//}
-
-		//player collision with platforms
-		if (player.getGlobalBounds().intersects(plat.getRectangle().getGlobalBounds()))
+		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-			isColliding = true;
+			player.move(10.f, 0.f);
 		}
-		else
+		//Collision with window
+		if (player.getPosition().x <= 0)//Left
 		{
-			isColliding = false;
+			player.setPosition(0.f, player.getPosition().y);
 		}
-
-		//Colliding
-
-		if (Keyboard::isKeyPressed(Keyboard::A) && !isColliding)
+		if (player.getPosition().x >= WIDTH - player.getGlobalBounds().width)//Right
 		{
-			box.move(-speed, 0);
+			player.setPosition(WIDTH - player.getGlobalBounds().width, player.getPosition().y);
 		}
-		if (Keyboard::isKeyPressed(Keyboard::D) && !isColliding)
+		if (player.getPosition().y <= 0)//Top
 		{
-			box.move(speed, 0);
+			player.setPosition(player.getPosition().x, 0.f);
 		}
-		if (Keyboard::isKeyPressed(Keyboard::D) && isColliding)
+		if (player.getPosition().y >= HEIGHT - player.getGlobalBounds().height)//Bottom
 		{
-			box.move(0, 0);
+			player.setPosition(player.getPosition().x, HEIGHT - player.getGlobalBounds().height);
 		}
-
-		if (Keyboard::isKeyPressed(Keyboard::W) && !isColliding)
-		{
-			box.move(0, -speed);
-		}
-		if (Keyboard::isKeyPressed(Keyboard::S) && !isColliding)
-		{
-			box.move(0, speed);
-		}
-
-
+		
 		//platform rotation
 		if (Keyboard::isKeyPressed(Keyboard::U))
 		{
@@ -179,11 +177,14 @@ void Game::update(Time elapsedTime)
 		//Randomly spawns enemies
 		if (spawnCounter >= 20 && enemies.size() < 50)
 		{
-			enemy.setPosition(Vector2f(rand() % WIDTH, rand() % HEIGHT));
+
+			enemy.setPosition(WIDTH - enemy.getGlobalBounds().width, rand()%HEIGHT - enemy.getGlobalBounds().height);
+
 			enemies.push_back(RectangleShape(enemy));
 
 			spawnCounter = 0;
 		}
+
 		//Shooting
 		if (Mouse::isButtonPressed(Mouse::Left))
 		{
@@ -210,6 +211,7 @@ void Game::update(Time elapsedTime)
 					{
 						bullets.erase(bullets.begin() + i);
 						enemies.erase(enemies.begin() + k);
+						killCount++;
 						break;
 					}
 				}
@@ -217,7 +219,30 @@ void Game::update(Time elapsedTime)
 
 		}
 
+		//Enemy
+		for (size_t i = 0; i < enemies.size(); i++)
+		{
+			enemies[i].move(-10.f, 0.f);
+
+			if (enemies[i].getPosition().x <= 0 - enemies[i].getGlobalBounds().width)
+			{
+				enemies.erase(enemies.begin() + i);
+			}
+			if (enemies[i].getGlobalBounds().intersects(player.getGlobalBounds()))
+			{
+				gameState = 3;
+			}
+		}
 		break;
+
+		case 3:
+			
+			if (Keyboard::isKeyPressed(Keyboard::Space))
+			{
+				gameState = 1;
+			}
+
+			break;
 
 		//p1.update(0);
 
@@ -249,13 +274,14 @@ void Game::render(RenderWindow &window)
 	switch (gameState)
 	{
 	case 1://Menu 
-		window.clear(sf::Color::Green);
+		window.clear(Color::Green);
 		window.draw(mText);
+		window.draw(instructions);
 		break;
 	case 2://Level 1
-		window.clear(sf::Color::Green);
+		window.clear(Color::Green);
 		
-		plat.draw(window);
+		//plat.draw(window);
 		//Draw enemies
 		for (size_t i = 0; i < enemies.size(); i++)
 		{
@@ -269,13 +295,18 @@ void Game::render(RenderWindow &window)
 		{
 			window.draw(bullets[i].shape);
 		}
+		std::cout << killCount << std::endl;
 		break;
-	//case 3://level 2
-
-	//	break;
+	case 3://Died
+		window.clear(Color::Red);
+		window.draw(endText);
+		window.draw(youDead);
+		break;
 
 	}
+
 	window.display();
+
 }
 
 Game::~Game()
