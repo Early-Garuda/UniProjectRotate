@@ -8,7 +8,7 @@ CircleShape ball(50);
 //Constructor
 Game::Game(RenderWindow & window, int width, int height)
 {
-
+	
 	//Setting game state
 	gameState = 1;
 	//setting font for project
@@ -39,7 +39,25 @@ Game::Game(RenderWindow & window, int width, int height)
 	youDead.setPosition(50.0f, 250.0f);
 	youDead.setCharacterSize(50);
 	youDead.setFillColor(Color::White);
-	youDead.setString("You have died press space\n to return to main menu.");
+	youDead.setString("You have died press Enter\n to return to main menu.");
+	//In game text
+	ssTime << "Time: " << gameSeconds;
+
+	gameTimeText.setFont(mFont);
+	gameTimeText.setPosition(25.0f, 25.0f);
+	gameTimeText.setCharacterSize(25);
+	gameTimeText.setFillColor(Color::Black);
+	gameTimeText.setString(ssTime.str());
+
+
+	//KillCount
+	ssKCount << "Kills: " << killCount;
+
+	killCounter.setFont(mFont);
+	killCounter.setPosition(250.0f, 25.0f);
+	killCounter.setCharacterSize(25);
+	killCounter.setFillColor(Color::Black);
+	killCounter.setString(ssKCount.str());
 
 	//box
 	box.setFillColor(Color::Black);
@@ -62,7 +80,7 @@ Game::Game(RenderWindow & window, int width, int height)
 
 	//Enemy
 	enemy.setFillColor(Color::Magenta);
-	enemy.setSize(Vector2f(50.f, 50.f));
+	enemy.setSize(Vector2f(80.f, 80.f));
 
 	srand(time(NULL));
 
@@ -88,6 +106,11 @@ void Game::run(RenderWindow &window)
 	}
 }
 
+
+void Game::updateTime(float gameSeconds)
+{
+	gameTimeText.setString(std::to_string(gameSeconds));
+}
 
 //Listen for window events
 void Game::processEvents(RenderWindow &window)
@@ -121,6 +144,14 @@ void Game::update(Time elapsedTime)
 		break;
 
 	case 2://Level 1 checking for input
+		//time
+		elapsedGameTime = gameClock.restart();
+		gameSeconds = elapsedGameTime.asSeconds();
+		std::cout << "Game Seconds: " << gameSeconds << std::endl;
+		//Update Game Time
+		ssTime.str(" ");
+		ssTime << "Time: " << gameSeconds;
+		gameTimeText.setString(ssTime.str());
 		//get player center
 		playerCenter = Vector2f(player.getPosition().x + player.getRadius(), player.getPosition().y + player.getRadius());
 		//get aim direction
@@ -131,19 +162,19 @@ void Game::update(Time elapsedTime)
 		//Player
 		if (Keyboard::isKeyPressed(Keyboard::W))
 		{
-			player.move(0.f, -10.0f);
+			player.move(0.f, -6.5f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::A))
 		{
-			player.move(-10.f, 0.f);
+			player.move(-6.5f, 0.f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::S))
 		{
-			player.move(0.f, 10.0f);
+			player.move(0.f, 6.5f);
 		}
 		if (Keyboard::isKeyPressed(Keyboard::D))
 		{
-			player.move(10.f, 0.f);
+			player.move(6.5f, 0.f);
 		}
 		//Collision with window
 		if (player.getPosition().x <= 0)//Left
@@ -212,6 +243,10 @@ void Game::update(Time elapsedTime)
 						bullets.erase(bullets.begin() + i);
 						enemies.erase(enemies.begin() + k);
 						killCount++;
+						//Updateing Score on screen
+						ssKCount.str(" ");
+						ssKCount << "Kills: " << killCount;
+						killCounter.setString(ssKCount.str());
 						break;
 					}
 				}
@@ -222,22 +257,26 @@ void Game::update(Time elapsedTime)
 		//Enemy
 		for (size_t i = 0; i < enemies.size(); i++)
 		{
+			//enemy movement
 			enemies[i].move(-10.f, 0.f);
 
 			if (enemies[i].getPosition().x <= 0 - enemies[i].getGlobalBounds().width)
 			{
 				enemies.erase(enemies.begin() + i);
 			}
+			//If enemy touches player game over
 			if (enemies[i].getGlobalBounds().intersects(player.getGlobalBounds()))
 			{
+				elapsedGameTime = endTime;
 				gameState = 3;
 			}
 		}
+		
 		break;
 
 		case 3:
 			
-			if (Keyboard::isKeyPressed(Keyboard::Space))
+			if (Keyboard::isKeyPressed(Keyboard::Return))
 			{
 				gameState = 1;
 			}
@@ -280,6 +319,7 @@ void Game::render(RenderWindow &window)
 		break;
 	case 2://Level 1
 		window.clear(Color::Green);
+
 		
 		//plat.draw(window);
 		//Draw enemies
@@ -295,9 +335,14 @@ void Game::render(RenderWindow &window)
 		{
 			window.draw(bullets[i].shape);
 		}
-		std::cout << killCount << std::endl;
+		//Time score
+		window.draw(gameTimeText);
+
+		//Kill Count
+		window.draw(killCounter);
 		break;
 	case 3://Died
+		enemies.clear();
 		window.clear(Color::Red);
 		window.draw(endText);
 		window.draw(youDead);

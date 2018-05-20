@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include "platform.h"
 #include "Bullet.h"
+#include <sstream>
+#include <string>
 
 #define WIDTH 1000
 #define HEIGHT 900
@@ -25,7 +27,6 @@ public:
 	void run(RenderWindow &window);
 	//Font
 	Font mFont;
-
 	//Text for Main menu.
 	Text mText;
 	Text instructions;
@@ -33,17 +34,27 @@ public:
 	Text endText;
 	Text youDead;
 
+
+	//clock
+	Clock gameClock;
+	Time elapsedGameTime;
+	float gameSeconds = elapsedGameTime.asSeconds();
+	Time endTime;
+	std::ostringstream ssTime;
+
+	Text gameTimeText;
+
+	
+
+	void updateTime( float gameSeconds );
+
+
 	int gameState;
 
-
-
-	bool goingRight, goingLeft, goingUp, goingDown;
-
-	bool isColliding;
-
-	bool isCollidingUp;
 	//Player
 	int killCount;
+	Text killCounter;
+	std::ostringstream ssKCount;
 	//PlayerVectors
 	Vector2f playerCenter;
 	Vector2f mousePosWindow;
@@ -51,10 +62,6 @@ public:
 	Vector2f aimDirNorm;
 	//Bullet 1
 	Bullet b1;
-	
-	
-
-	
 
 private:
 	void processEvents(RenderWindow &window);
