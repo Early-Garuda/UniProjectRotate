@@ -3,13 +3,13 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Window.hpp"
 #include "SFML/System.hpp"
-#include <math.h>
-#include <vector>
-#include <cstdlib>
 #include "platform.h"
 #include "Bullet.h"
+#include <math.h>
+#include <vector>
 #include <sstream>
 #include <string>
+#include <cstdlib>
 
 #define WIDTH 1000
 #define HEIGHT 900
@@ -38,7 +38,7 @@ public:
 	//clock
 	Clock gameClock;
 	Time elapsedGameTime;
-	float gameSeconds = elapsedGameTime.asSeconds();
+	float deltaTime = elapsedGameTime.asSeconds();
 	Time endTime;
 	std::ostringstream ssTime;
 
@@ -46,13 +46,14 @@ public:
 
 	
 
-	void updateTime( float gameSeconds );
+	void updateTime( float deltaTime );
 
+	float time_since_play;
 
 	int gameState;
 
 	//Player
-	int killCount;
+	int killCount = 0;
 	Text killCounter;
 	std::ostringstream ssKCount;
 	//PlayerVectors
@@ -62,6 +63,8 @@ public:
 	Vector2f aimDirNorm;
 	//Bullet 1
 	Bullet b1;
+	//Enemy
+	float enemySpeed = 10;
 
 private:
 	void processEvents(RenderWindow &window);

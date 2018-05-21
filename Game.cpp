@@ -22,6 +22,8 @@ Game::Game(RenderWindow & window, int width, int height)
 	mText.setCharacterSize(50);
 	mText.setFillColor(Color::White);
 	mText.setString("Space to play");
+	//setting time since play
+	time_since_play = 0;
 
 	instructions.setFont(mFont);
 	instructions.setPosition(50.0f, 250.0f);
@@ -40,8 +42,14 @@ Game::Game(RenderWindow & window, int width, int height)
 	youDead.setCharacterSize(50);
 	youDead.setFillColor(Color::White);
 	youDead.setString("You have died press Enter\n to return to main menu.");
+
+	/*youDead.setFont(mFont);
+	youDead.setPosition(50.0f, 400.0f);
+	youDead.setCharacterSize(50);
+	youDead.setFillColor(Color::White);
+	*/
 	//In game text
-	ssTime << "Time: " << gameSeconds;
+	ssTime << "Time: " << deltaTime;
 
 	gameTimeText.setFont(mFont);
 	gameTimeText.setPosition(25.0f, 25.0f);
@@ -73,7 +81,6 @@ Game::Game(RenderWindow & window, int width, int height)
 	//Player
 	player.setRadius(25.f);
 	player.setFillColor(Color::White);
-	killCount = 0;
 
 	//Bullets
 	bullets.push_back(Bullet(b1));
@@ -107,9 +114,10 @@ void Game::run(RenderWindow &window)
 }
 
 
-void Game::updateTime(float gameSeconds)
+void Game::updateTime(float delatTime)
 {
-	gameTimeText.setString(std::to_string(gameSeconds));
+	time_since_play += deltaTime;
+	gameTimeText.setString(std::to_string(int(time_since_play)));
 }
 
 //Listen for window events
@@ -140,18 +148,22 @@ void Game::update(Time elapsedTime)
 		if (Keyboard::isKeyPressed(Keyboard::Space))
 		{
 			gameState = 2;
+			time_since_play = 0;
+			killCount = 0;
 		}
 		break;
 
 	case 2://Level 1 checking for input
 		//time
+		
 		elapsedGameTime = gameClock.restart();
-		gameSeconds = elapsedGameTime.asSeconds();
-		std::cout << "Game Seconds: " << gameSeconds << std::endl;
+		deltaTime = elapsedGameTime.asSeconds();
+		std::cout << "FPS: " << deltaTime << std::endl;
 		//Update Game Time
-		ssTime.str(" ");
+		updateTime(deltaTime);
+		/*ssTime.str(" ");
 		ssTime << "Time: " << gameSeconds;
-		gameTimeText.setString(ssTime.str());
+		gameTimeText.setString(ssTime.str());*/
 		//get player center
 		playerCenter = Vector2f(player.getPosition().x + player.getRadius(), player.getPosition().y + player.getRadius());
 		//get aim direction
@@ -200,6 +212,16 @@ void Game::update(Time elapsedTime)
 			plat.update(elapsedTime.asSeconds());
 		}
 
+		//Enemy Stuff
+		/*if (time_since_play == 10)
+		{
+			enemySpeed = 15;
+		}
+		else if (time_since_play > 10)
+		{
+			enemySpeed = enemySpeed + 5;
+		}*/
+	
 		//Enemy spawn counter
 		if (spawnCounter < 20)
 		{
@@ -242,11 +264,10 @@ void Game::update(Time elapsedTime)
 					{
 						bullets.erase(bullets.begin() + i);
 						enemies.erase(enemies.begin() + k);
+
+						//updating score int
 						killCount++;
-						//Updateing Score on screen
-						ssKCount.str(" ");
-						ssKCount << "Kills: " << killCount;
-						killCounter.setString(ssKCount.str());
+						
 						break;
 					}
 				}
@@ -254,11 +275,16 @@ void Game::update(Time elapsedTime)
 
 		}
 
+		//Updateing Score on screen
+		ssKCount.str(" ");
+		ssKCount << "Kills: " << killCount;
+		killCounter.setString(ssKCount.str());
+
 		//Enemy
 		for (size_t i = 0; i < enemies.size(); i++)
 		{
 			//enemy movement
-			enemies[i].move(-10.f, 0.f);
+			enemies[i].move(-enemySpeed, 0.f);
 
 			if (enemies[i].getPosition().x <= 0 - enemies[i].getGlobalBounds().width)
 			{
@@ -346,6 +372,8 @@ void Game::render(RenderWindow &window)
 		window.clear(Color::Red);
 		window.draw(endText);
 		window.draw(youDead);
+		window.draw(gameTimeText);
+		window.draw(killCounter);
 		break;
 
 	}
