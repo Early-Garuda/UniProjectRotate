@@ -1,0 +1,613 @@
+Function Documentation
+
+void draw();
+
+void update();
+
+void nextLevel();
+
+
+
+void init();
+
+
+void initTutorial();
+
+void initStage1();
+void initStage2();
+
+
+void initStage3();
+void initStage4();
+
+void initStage5();
+
+
+void initStage6();
+
+void initStage7();
+
+void initStage9();
+
+
+void createGrid(const unsigned short *map);
+
+void addBackground(const unsigned short *wallTiles, const unsigned short *wallMap, const unsigned short *floorTiles, const unsigned short *floorMap);
+
+void move(int changeX, int changeY);
+
+
+bool merge(int boxToMerge);
+
+bool isOdd(int n);
+
+bool correctBox(Box box, Box dropbox);
+
+
+int collision(int x, int y, bool mergeBoxes);
+
+
+
+void attractModeInit();
+
+void attractModeUdate(int step);
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+void draw();
+
+Syntax:
+
+void draw();
+
+Parameters:
+
+None.
+
+Return Value:
+
+Void.
+
+Remarks:
+
+Finds what needs to be drawn where and draws it.
+
+Requirements:
+
+#include <tonc.h>
+
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+
+
+#include "main.h"
+
+#include "player.h"
+
+// LEVELS
+
+#include "levels/Stage1Color.h"
+
+#include "levels/Stage1ColorWalls.h"
+
+#include "levels/Stage2ColorCombo.h"
+
+#include "levels/Stage2ColorComboWALL.h"
+
+#include "levels/Stage3NumberCombo.h"
+
+#include "levels/Stage3NumberComboWalls.h"
+#include "levels/Stage4.h"
+
+#include "levels/Stage4Walls.h"
+
+#include "levels/Stage5new.h"
+
+#include "levels/Stage5newWalls.h"
+
+
+#include "levels/Stage6Both.h"
+
+#include "levels/Stage6BothWalls.h"
+
+#include "levels/Stage7Both.h"
+
+#include "levels/Stage7BothWalls.h"
+
+#include "levels/Stage9Both.h"
+
+#include "levels/Stage9Walls.h"
+
+#include "levels/StageTutPnP.h"
+
+#include "levels/StageTutPnPWALLS.h"
+
+
+// BOXES
+
+#include "boxes/BoxClear.h"
+
+#include "boxes/Box1.h"
+
+#include "boxes/Box2.h"
+
+#include "boxes/Box3.h"
+
+#include "boxes/Box4.h"
+
+#include "boxes/Box5.h"
+
+#include "boxes/Box6.h"
+
+#include "boxes/Box7.h"
+
+#include "boxes/Box8.h"
+
+#include "boxes/Box9.h"
+// DROPBOXES
+
+#include "dropbox/DBox1Clear.h"
+
+#include "dropbox/DBox2Clear.h"
+
+#include "dropbox/DBox3Clear.h"
+
+#include "dropbox/DBox4Clear.h"
+#include "dropbox/DBox5Clear.h"
+
+#include "dropbox/DBox6Clear.h"
+
+#include "dropbox/DBox7Clear.h"
+
+#include "dropbox/DBox8Clear.h"
+
+#include "dropbox/DBox9Clear.h"
+
+#include "dropbox/DBoxClear.h"
+
+
+// MISC
+
+#include "other/EndZone.h"
+#include "other/MovingBlocks.h"
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+void update();
+
+Syntax:
+
+void update();
+
+
+Parameters:
+
+None.
+
+
+Return Value:
+
+Void.
+
+
+Remarks:
+
+Updates the world and sprites. 
+
+
+Requirements:
+
+#include <tonc.h>
+
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <string.h>
+
+
+#include "main.h"
+
+#include "player.h"
+
+
+// LEVELS
+
+#include "levels/Stage1Color.h"
+
+#include "levels/Stage1ColorWalls.h"
+
+#include "levels/Stage2ColorCombo.h"
+
+#include "levels/Stage2ColorComboWALL.h"
+
+#include "levels/Stage3NumberCombo.h"
+
+#include "levels/Stage3NumberComboWalls.h"
+
+#include "levels/Stage4.h"
+
+#include "levels/Stage4Walls.h"
+
+#include "levels/Stage5new.h"
+
+#include "levels/Stage5newWalls.h"
+
+
+#include "levels/Stage6Both.h"
+
+#include "levels/Stage6BothWalls.h"
+
+#include "levels/Stage7Both.h"
+
+#include "levels/Stage7BothWalls.h"
+
+#include "levels/Stage9Both.h"
+
+#include "levels/Stage9Walls.h"
+
+#include "levels/StageTutPnP.h"
+
+#include "levels/StageTutPnPWALLS.h"
+
+
+// BOXES
+
+#include "boxes/BoxClear.h"
+
+#include "boxes/Box1.h"
+
+#include "boxes/Box2.h"
+
+#include "boxes/Box3.h"
+
+#include "boxes/Box4.h"
+
+#include "boxes/Box5.h"
+
+#include "boxes/Box6.h"
+
+#include "boxes/Box7.h"
+
+#include "boxes/Box8.h"
+
+#include "boxes/Box9.h"
+
+
+// DROPBOXES
+
+#include "dropbox/DBox1Clear.h"
+
+#include "dropbox/DBox2Clear.h"
+
+#include "dropbox/DBox3Clear.h"
+
+#include "dropbox/DBox4Clear.h"
+
+#include "dropbox/DBox5Clear.h"
+
+#include "dropbox/DBox6Clear.h"
+
+#include "dropbox/DBox7Clear.h"
+
+#include "dropbox/DBox8Clear.h"
+
+#include "dropbox/DBox9Clear.h"
+
+#include "dropbox/DBoxClear.h"
+
+
+// MISC
+
+#include "other/EndZone.h"
+
+#include "other/MovingBlocks.h"
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void initTutorial();
+
+void initStage1();
+
+void initStage2();
+
+
+void initStage3();
+
+void initStage4();
+
+void initStage5();
+
+
+void initStage6();
+void initStage7();
+
+void initStage9();
+
+
+
+Parameters:
+
+None.
+
+
+Return Value:
+
+Void.
+
+
+Remarks:
+
+Clears then populates the map. Holds Each levels sprite locations.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void createGrid(const unsigned short *map);
+
+
+
+Parameters:
+
+const unsigned short
+
+
+Return Value:
+
+Void.
+
+
+Remarks:
+
+makes an array and finds values to put sprites down.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void addBackground(const unsigned short *wallTiles, const unsigned short *wallMap, const unsigned short *floorTiles, const unsigned short *floorMap);
+
+
+Parameters:
+
+const unsigned short
+
+
+Return Value:
+
+Void.
+
+
+Remarks:
+
+Gets the tiles sprites.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void move(int changeX, int changeY);
+
+
+Parameters:
+
+int
+
+
+Return Value:
+
+Void.
+
+
+Remarks:
+
+Moves boxes. Checks for collisions to see if player can push or pull.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+Syntax:
+
+bool merge(int boxToMerge);
+
+
+Parameters:
+
+iny
+
+
+Return Value:
+
+true or false.
+
+
+Remarks:
+
+Checks if boxes can merge. Only allows odd boxes 
+(red = 1, orange = 2, yellow = 3, green = 4, blue = 5, purple = 6)
+Only primary colors and numbers <= 9.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+bool isOdd(int n);
+
+
+Parameters:
+
+int
+
+
+Return Value:
+
+true or false.
+
+
+Remarks:
+
+Checks if palette bank = an odd number.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+bool correctBox(Box box, Box dropbox);
+
+
+Parameters:
+
+Box struct, and dropbox struct
+
+
+Return Value:
+
+true or false.
+
+
+Remarks:
+
+Checks if the colors and values are the right ones.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void attractModeInit();
+
+
+Parameters:
+
+None.
+
+
+Return Value:
+
+void.
+
+
+Remarks:
+
+Checks for any collisions.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+void attractModeUdate(int step);
+
+
+Parameters:
+
+int
+
+
+Return Value:
+
+void.
+
+
+Remarks:
+
+Checks for any collisions.
+
+
+Requirements:
+
+
+#include "main.h"
+
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Syntax:
+
+int collision(int x, int y, bool mergeBoxes);
+
+
+Parameters:
+
+int and bool
+
+
+Return Value:
+
+int
+
+
+Remarks:
+
+Checks for any collisions.
+
+
+Requirements:
+
+
+#include "main.h"
+
